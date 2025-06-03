@@ -1,6 +1,8 @@
 import {Button} from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
+import {dummyInterviews} from "@/constants";
+import InterviewCard from "@/components/InterviewCard";
 
 export default function Page() {
     return (
@@ -21,14 +23,15 @@ export default function Page() {
             <section className="flex flex-col gap-6 mt-8">
                 <h2>Your Interviews</h2>
                 <div className="interview sections">
-                    <p>You haven&apos;t taken interviews yet</p>
+                    {dummyInterviews.map(interview => <InterviewCard key={Math.random()} {...interview}/>)}
                 </div>
             </section>
 
             <section className="flex flex-col gap-6 mt-8">
                 <h2>Take your Interview</h2>
                 <div className="inteviews-section">
-                    <p>There are no interviews available</p>
+                    {dummyInterviews.map(interview => <InterviewCard key={Math.random()} {...interview}/>)}
+               <p>You haven&apos;t taken an interview yet</p>
                 </div>
             </section>
         </>
