@@ -23,15 +23,15 @@ export default function Page() {
             <section className="flex flex-col gap-6 mt-8">
                 <h2>Your Interviews</h2>
                 <div className="interview sections">
-                    {dummyInterviews.map(interview => <InterviewCard key={Math.random()} {...interview}/>)}
+                    {dummyInterviews.map(interview => <InterviewCard key={interview.id} {...interview}/>)}
                 </div>
             </section>
 
             <section className="flex flex-col gap-6 mt-8">
                 <h2>Take your Interview</h2>
                 <div className="inteviews-section">
-                    {dummyInterviews.map(interview => <InterviewCard key={Math.random()} {...interview}/>)}
-               <p>You haven&apos;t taken an interview yet</p>
+                    {dummyInterviews.map(interview => <InterviewCard key={interview.id} {...interview}/>)}
+               {/*<p>You haven&apos;t taken an interview yet</p>*/}
                 </div>
             </section>
         </>
