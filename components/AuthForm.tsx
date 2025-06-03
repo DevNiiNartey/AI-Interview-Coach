@@ -8,9 +8,9 @@ import {
     Form
 } from "@/components/ui/form"
 import Image from "next/image";
-import Link from "next/link";
 import {toast} from "sonner";
 import FormField from "@/components/FormField";
+import {useRouter} from "next/navigation";
 
 
 const authFormSchema = (type: FormType) => {
@@ -22,6 +22,8 @@ const authFormSchema = (type: FormType) => {
 }
 
 const AuthForm = ({type}: { type: FormType }) => {
+
+    const router = useRouter()
 
     const formSchema = authFormSchema(type)
     // 1. Define your form.
@@ -39,9 +41,11 @@ const AuthForm = ({type}: { type: FormType }) => {
     function onSubmit(values: z.infer<typeof formSchema>) {
         try {
             if (type === 'sign-up') {
-                console.log("sign in", values)
+                toast.success("Account created successfully. Please sign in.")
+                router.push('/sign-in')
             } else {
-                console.log("sign up", values)
+                toast.success("Signed in successfully.")
+                router.push('/')
             }
         } catch (e) {
             console.log(e)
@@ -79,9 +83,9 @@ const AuthForm = ({type}: { type: FormType }) => {
                     </form>
                 </Form>
                 <p className="text-center">{isSignIn ? 'Don\'t have an account?' : 'Have an Account already'}
-                    <Link
+                    <a
                         href={!isSignIn ? '/sign-in' : '/sign-up'}
-                        className="font-bold text-user-primary ml-1">{!isSignIn ? "Sign In" : "Sign Up"}</Link>
+                        className="font-bold text-user-primary ml-1">{!isSignIn ? "Sign In" : "Sign Up"}</a>
                 </p>
             </div>
         </div>
