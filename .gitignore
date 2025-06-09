@@ -1,0 +1,6 @@
+node_modules
+.next
+.idea
+package-lock.json
+.env.local
+ai-coach-nat-firebase-adminsdk-fbsvc-c96b6edace.json

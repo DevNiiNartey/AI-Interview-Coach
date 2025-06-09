@@ -1,0 +1,27 @@
+<svg width="39" height="34" viewBox="0 0 39 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Robot Head -->
+    <rect x="9" y="6" width="21" height="16" rx="4" stroke="white" stroke-width="2" fill="none"/>
+
+    <!-- Eyes -->
+    <circle cx="15" cy="13" r="2" fill="white"/>
+    <circle cx="24" cy="13" r="2" fill="white"/>
+
+    <!-- Mouth -->
+    <rect x="17" y="17" width="5" height="2" rx="1" fill="white"/>
+
+    <!-- Antenna -->
+    <line x1="19.5" y1="6" x2="19.5" y2="2" stroke="white" stroke-width="2"/>
+    <circle cx="19.5" cy="2" r="1.5" fill="white"/>
+
+    <!-- Headset (left) -->
+    <path d="M8 12C6 12 4.5 13.5 4.5 15.5C4.5 17.5 6 19 8 19" stroke="white" stroke-width="1.5"/>
+
+    <!-- Headset (right with mic) -->
+    <path d="M31 12C33 12 34.5 13.5 34.5 15.5C34.5 17.5 33 19 31 19" stroke="white" stroke-width="1.5"/>
+    <line x1="31" y1="19" x2="36" y2="22" stroke="white" stroke-width="1.5"/>
+    <circle cx="36" cy="22" r="1.5" fill="white"/>
+
+    <!-- Neck/Shoulders -->
+    <rect x="14" y="22" width="11" height="3" rx="1" fill="white"/>
+    <rect x="12" y="25" width="15" height="4" rx="1" fill="white"/>
+</svg>
