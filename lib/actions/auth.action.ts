@@ -72,7 +72,7 @@ export async function setSessionCookie(idToken: string) {
         expiresIn: ONE_WEEK * 1000,
     })
 
-    const cookieStore.set('session', sessionCookie, {
+    const cookieResponse = cookieStore.set('session', sessionCookie, {
         maxAge: ONE_WEEK,
         httpOnly: true,
         path: '/',
