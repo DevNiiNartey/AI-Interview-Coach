@@ -2,6 +2,7 @@
 
 import {auth, db} from "@/firebase/admin";
 import {cookies} from "next/headers";
+import {ReadonlyRequestCookies} from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 
 const ONE_WEEK = 60 * 60 * 24 * 7;
@@ -66,18 +67,18 @@ export async function signIn(params: SignInParams) {
 export async function setSessionCookie(idToken: string) {
 
 
-    const cookieStore = await cookies();
+    const cookieStore: ReadonlyRequestCookies = await cookies();
 
     const sessionCookie = await auth.createSessionCookie(idToken, {
         expiresIn: ONE_WEEK * 1000,
     })
 
-    const cookieStore.set('session', sessionCookie, {
+    cookieStore.set('session', sessionCookie, {
         maxAge: ONE_WEEK,
         httpOnly: true,
         path: '/',
         sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
+        secure: process.env.NODE_ENV === 'production'
     });
 
 }
