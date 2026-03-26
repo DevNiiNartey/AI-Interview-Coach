@@ -1,12 +1,10 @@
-// import Agents from "@/components/Agents";
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/actions/auth.action";
+import InterviewSetup from "@/components/InterviewSetup";
 
-const Page = () => {
-  return (
-    <>
-      <h3>Interview Generation</h3>
-      {/*<Agents userName="ME" userId="user1" type="generate" />*/}
-    </>
-  );
-};
+export default async function InterviewPage() {
+  const user = await getCurrentUser();
+  if (!user) redirect("/sign-in");
 
-export default Page;
+  return <InterviewSetup userId={user.id} />;
+}
