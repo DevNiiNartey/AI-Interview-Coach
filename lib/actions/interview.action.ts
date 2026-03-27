@@ -5,49 +5,67 @@ import { feedbackSchema } from "@/constants";
 import OpenAI from "openai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+// Provider 1: Groq — primary, 14,400 req/day free, very fast
+const groq = new OpenAI({
+  baseURL: "https://api.groq.com/openai/v1",
+  apiKey: process.env.GROQ_API_KEY || "",
+});
+
+// Provider 2: OpenRouter — secondary fallback, ~50 req/day free
 const openrouter = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
   apiKey: process.env.OPENROUTER_API_KEY || "",
 });
 
+// Provider 3: Google Gemini — final guaranteed fallback
 const gemini = new GoogleGenerativeAI(process.env.GOOGLE_AI_KEY || "");
-
-// Free model fallback chain — if one is rate-limited (429), try the next
-// Final fallback: Google Gemini 2.0 Flash (free tier, 1500 req/day)
-const OPENROUTER_MODELS = [
-  "meta-llama/llama-3.3-70b-instruct:free",
-  "google/gemma-3-27b-it:free",
-  "qwen/qwen3-235b-a22b:free",
-  "deepseek/deepseek-r1-0528:free",
-];
 
 async function chatWithFallback(
   messages: OpenAI.ChatCompletionMessageParam[]
 ): Promise<string> {
-  // Try OpenRouter free models first
-  for (const model of OPENROUTER_MODELS) {
+  // 1. Try Groq (most generous free tier)
+  if (process.env.GROQ_API_KEY) {
     try {
-      const completion = await openrouter.chat.completions.create({
-        model,
+      const completion = await groq.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
         messages,
       });
       return completion.choices[0]?.message?.content?.trim() || "";
     } catch (e: unknown) {
-      console.warn(`Model ${model} failed, trying next fallback...`, e instanceof Error ? e.message : e);
-      continue;
+      console.warn("Groq failed, trying OpenRouter...", e instanceof Error ? e.message : e);
     }
   }
 
-  // Final fallback: Google Gemini (guaranteed availability)
+  // 2. Try OpenRouter free models
+  if (process.env.OPENROUTER_API_KEY) {
+    const openrouterModels = [
+      "google/gemma-3-27b-it:free",
+      "meta-llama/llama-3.3-70b-instruct:free",
+    ];
+    for (const model of openrouterModels) {
+      try {
+        const completion = await openrouter.chat.completions.create({
+          model,
+          messages,
+        });
+        return completion.choices[0]?.message?.content?.trim() || "";
+      } catch (e: unknown) {
+        console.warn(`OpenRouter ${model} failed...`, e instanceof Error ? e.message : e);
+        continue;
+      }
+    }
+  }
+
+  // 3. Final fallback: Google Gemini
   if (process.env.GOOGLE_AI_KEY) {
-    console.warn("All OpenRouter models failed, falling back to Gemini...");
+    console.warn("All other providers failed, falling back to Gemini...");
     const model = gemini.getGenerativeModel({ model: "gemini-2.0-flash" });
     const prompt = messages.map((m) => m.content).join("\n\n");
     const result = await model.generateContent(prompt);
     return result.response.text().trim();
   }
 
-  throw new Error("All AI models unavailable. Please try again later.");
+  throw new Error("All AI providers unavailable. Please try again later.");
 }
 
 export async function createInterview(params: CreateInterviewParams) {
