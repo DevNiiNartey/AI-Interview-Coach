@@ -103,6 +103,17 @@ export async function getCurrentUser(): Promise<User | null> {
     }
 }
 
+export async function signOut() {
+    try {
+        const cookieStore = await cookies();
+        cookieStore.delete('session');
+        return { success: true };
+    } catch (e: any) {
+        console.error("Error signing out: ", e);
+        return { success: false, message: e.message || "Failed to sign out" };
+    }
+}
+
 export async function isAuthenticated() {
     const user = await getCurrentUser();
     return !!user;

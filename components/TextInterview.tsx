@@ -129,6 +129,30 @@ export default function TextInterview({
     }
   };
 
+  if (ending) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-6 min-h-[60vh]">
+        <div className="card-border max-w-lg w-full">
+          <div className="card p-8 flex flex-col items-center gap-6">
+            <div className="relative">
+              <div className="w-16 h-16 border-4 border-primary-200/30 rounded-full" />
+              <div className="w-16 h-16 border-4 border-primary-200 border-t-transparent rounded-full animate-spin absolute top-0 left-0" />
+            </div>
+            <h2 className="text-center text-primary-100">Analyzing Your Interview</h2>
+            <p className="text-light-400 text-sm text-center max-w-sm">
+              Our AI is reviewing your responses and generating detailed feedback. This usually takes 15-30 seconds.
+            </p>
+            <div className="flex gap-1 mt-2">
+              <span className="w-2 h-2 bg-primary-200 rounded-full animate-bounce" />
+              <span className="w-2 h-2 bg-primary-200 rounded-full animate-bounce" style={{ animationDelay: "0.15s" }} />
+              <span className="w-2 h-2 bg-primary-200 rounded-full animate-bounce" style={{ animationDelay: "0.3s" }} />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!started) {
     return (
       <div className="flex flex-col items-center justify-center gap-6 min-h-[60vh]">

@@ -3,8 +3,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/actions/auth.action";
-import { getInterviewsByUserId } from "@/lib/actions/interview.action";
+import { getInterviewsByUserId, getFeedbackByInterviewId } from "@/lib/actions/interview.action";
 import InterviewCard from "@/components/InterviewCard";
+import FilterableInterviewList from "@/components/FilterableInterviewList";
+import type { EnrichedInterview } from "@/components/FilterableInterviewList";
 
 export default async function Page() {
   const user = await getCurrentUser();
@@ -14,6 +16,37 @@ export default async function Page() {
 
   const completedInterviews = interviews.filter((i) => i.finalized);
   const pendingInterviews = interviews.filter((i) => !i.finalized);
+
+  // Pre-fetch feedback for all completed interviews to enable client-side sorting by score
+  const enrichedInterviews: EnrichedInterview[] = await Promise.all(
+    completedInterviews.map(async (interview) => {
+      let feedbackScore: number | undefined;
+      let feedbackAssessment: string | undefined;
+
+      if (interview.feedbackId) {
+        const feedback = await getFeedbackByInterviewId({
+          interviewId: interview.id,
+          userId: user.id,
+        });
+        if (feedback) {
+          feedbackScore = feedback.totalScore;
+          feedbackAssessment = feedback.finalAssessment;
+        }
+      }
+
+      return {
+        id: interview.id,
+        role: interview.role,
+        type: interview.type,
+        techstack: interview.techstack,
+        createdAt: interview.createdAt,
+        feedbackId: interview.feedbackId,
+        feedbackScore,
+        feedbackAssessment,
+        finalized: interview.finalized,
+      };
+    })
+  );
 
   return (
     <>
@@ -36,24 +69,11 @@ export default async function Page() {
 
       <section className="flex flex-col gap-6 mt-8">
         <h2>Your Interviews</h2>
-        <div className="interviews-section">
-          {completedInterviews.length > 0 ? (
-            completedInterviews.map((interview) => (
-              <InterviewCard
-                key={interview.id}
-                interviewId={interview.id}
-                userId={user.id}
-                role={interview.role}
-                type={interview.type}
-                techstack={interview.techstack}
-                createdAt={interview.createdAt}
-                feedbackId={interview.feedbackId}
-              />
-            ))
-          ) : (
-            <p>No completed interviews yet. Start practicing!</p>
-          )}
-        </div>
+        {enrichedInterviews.length > 0 ? (
+          <FilterableInterviewList interviews={enrichedInterviews} />
+        ) : (
+          <p>No completed interviews yet. Start practicing!</p>
+        )}
       </section>
 
       {pendingInterviews.length > 0 && (
