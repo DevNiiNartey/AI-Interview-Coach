@@ -203,7 +203,14 @@ Tech stack discussed: ${interview.techstack.join(", ")}.
 Here is the interview transcript:
 ${formattedTranscript}
 
-Evaluate the candidate's performance and provide detailed feedback. Score each category from 0-100.
+SCORING RULES:
+- ONLY score based on what was actually discussed in the transcript. Do NOT penalize the candidate for topics that were not covered.
+- If a category was not tested or discussed (e.g., Cultural Fit was never asked about), give a neutral score of 70 and note "Not directly assessed in this interview" in the comment.
+- Be fair and encouraging. This is a practice tool meant to help candidates improve.
+- Base scores on the quality of answers given, not on topics that were never raised.
+- The totalScore should be a weighted average that reflects the categories actually tested.
+
+Score each category from 0-100.
 
 Return ONLY valid JSON (no markdown, no explanation) in this exact format:
 {
