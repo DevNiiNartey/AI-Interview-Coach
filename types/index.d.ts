@@ -48,6 +48,7 @@ interface User {
   name: string;
   email: string;
   id: string;
+  emailVerified?: boolean;
 }
 
 interface InterviewCardProps {

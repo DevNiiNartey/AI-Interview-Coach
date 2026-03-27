@@ -3,6 +3,7 @@
 import {auth, db} from "@/firebase/admin";
 import {cookies} from "next/headers";
 import {ReadonlyRequestCookies} from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import {sendVerificationEmail} from "@/lib/actions/email.action";
 
 
 const ONE_WEEK = 60 * 60 * 24 * 7;
@@ -19,7 +20,16 @@ export async function signUp(params: SignUpParams) {
         await db.collection("users").doc(uid).set({
             name,
             email,
+            emailVerified: false,
         })
+
+        // Send verification email (best-effort — don't block account creation)
+        try {
+            await sendVerificationEmail(uid, email, name);
+        } catch (emailErr) {
+            console.warn("Failed to send verification email:", emailErr);
+        }
+
         return {
             success: true,
             message: "User created successfully, please sign in"

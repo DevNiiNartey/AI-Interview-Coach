@@ -7,6 +7,7 @@ import { getInterviewsByUserId, getFeedbackByInterviewId } from "@/lib/actions/i
 import InterviewCard from "@/components/InterviewCard";
 import FilterableInterviewList from "@/components/FilterableInterviewList";
 import type { EnrichedInterview } from "@/components/FilterableInterviewList";
+import VerificationBanner from "@/components/VerificationBanner";
 
 export default async function Page() {
   const user = await getCurrentUser();
@@ -50,6 +51,8 @@ export default async function Page() {
 
   return (
     <>
+      <VerificationBanner userId={user.id} emailVerified={user.emailVerified} />
+
       <section className="card-cta">
         <div className="flex flex-col gap-6 max-w-lg">
           <h2>Get Interview-Ready with AI-Powered Practice and Feedback</h2>
