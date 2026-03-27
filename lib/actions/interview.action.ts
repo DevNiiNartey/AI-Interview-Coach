@@ -3,13 +3,56 @@
 import { db } from "@/firebase/admin";
 import { feedbackSchema } from "@/constants";
 import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const openrouter = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
   apiKey: process.env.OPENROUTER_API_KEY || "",
 });
 
-const AI_MODEL = "meta-llama/llama-3.3-70b-instruct:free";
+const gemini = new GoogleGenerativeAI(process.env.GOOGLE_AI_KEY || "");
+
+// Free model fallback chain — if one is rate-limited (429), try the next
+// Final fallback: Google Gemini 2.0 Flash (free tier, 1500 req/day)
+const OPENROUTER_MODELS = [
+  "meta-llama/llama-3.3-70b-instruct:free",
+  "mistralai/mistral-small-3.1:free",
+  "qwen/qwen3-coder:free",
+  "google/gemma-3-27b-it:free",
+];
+
+async function chatWithFallback(
+  messages: OpenAI.ChatCompletionMessageParam[]
+): Promise<string> {
+  // Try OpenRouter free models first
+  for (const model of OPENROUTER_MODELS) {
+    try {
+      const completion = await openrouter.chat.completions.create({
+        model,
+        messages,
+      });
+      return completion.choices[0]?.message?.content?.trim() || "";
+    } catch (e: unknown) {
+      const isRateLimit = e instanceof Error && "status" in e && (e as { status: number }).status === 429;
+      if (isRateLimit) {
+        console.warn(`Model ${model} rate-limited, trying next fallback...`);
+        continue;
+      }
+      throw e;
+    }
+  }
+
+  // Final fallback: Google Gemini
+  if (process.env.GOOGLE_AI_KEY) {
+    console.warn("All OpenRouter models rate-limited, falling back to Gemini...");
+    const model = gemini.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const prompt = messages.map((m) => m.content).join("\n\n");
+    const result = await model.generateContent(prompt);
+    return result.response.text().trim();
+  }
+
+  throw new Error("All AI models are rate-limited. Please try again later.");
+}
 
 export async function createInterview(params: CreateInterviewParams) {
   const { role, level, techstack, type, mode, userId } = params;
@@ -26,13 +69,8 @@ ${type === "Mixed" ? "Include a mix of technical and behavioral questions. Start
 
 Return ONLY a JSON array of strings, no markdown, no explanation. Example: ["Question 1?", "Question 2?"]`;
 
-    const completion = await openrouter.chat.completions.create({
-      model: AI_MODEL,
-      messages: [{ role: "user", content: prompt }],
-    });
-
-    const text = completion.choices[0]?.message?.content?.trim() || "[]";
-    const cleanText = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    const text = await chatWithFallback([{ role: "user", content: prompt }]);
+    const cleanText = (text || "[]").replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
     const questions: string[] = JSON.parse(cleanText);
 
     // Save to Firestore
@@ -169,13 +207,8 @@ Return ONLY valid JSON (no markdown, no explanation) in this exact format:
   "finalAssessment": "<2-3 sentence overall assessment>"
 }`;
 
-    const completion = await openrouter.chat.completions.create({
-      model: AI_MODEL,
-      messages: [{ role: "user", content: prompt }],
-    });
-
-    const text = completion.choices[0]?.message?.content?.trim() || "{}";
-    const cleanText = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    const text = await chatWithFallback([{ role: "user", content: prompt }]);
+    const cleanText = (text || "{}").replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
     const feedbackData = JSON.parse(cleanText);
 
     // Validate with zod
@@ -251,12 +284,10 @@ export async function generateTextResponse(
       .map((q, i) => `${i + 1}. ${q}`)
       .join("\n");
 
-    const completion = await openrouter.chat.completions.create({
-      model: AI_MODEL,
-      messages: [
-        {
-          role: "system",
-          content: `You are a professional job interviewer conducting a text-based interview for a ${interview.level} ${interview.role} position.
+    const result = await chatWithFallback([
+      {
+        role: "system",
+        content: `You are a professional job interviewer conducting a text-based interview for a ${interview.level} ${interview.role} position.
 Interview type: ${interview.type}
 Tech stack: ${interview.techstack.join(", ")}
 
@@ -265,15 +296,14 @@ ${questionList}
 
 Continue the interview naturally. Ask the next question from your list, or ask a follow-up if the candidate's answer needs more depth. If all questions have been asked, wrap up the interview professionally.
 Keep your response concise (2-3 sentences max). Be professional but warm.`,
-        },
-        ...messages.map((m) => ({
-          role: m.role as "user" | "assistant",
-          content: m.content,
-        })),
-      ],
-    });
+      },
+      ...messages.map((m) => ({
+        role: m.role as "user" | "assistant",
+        content: m.content,
+      })),
+    ]);
 
-    return completion.choices[0]?.message?.content?.trim() || "I apologize, but I'm having a technical difficulty. Could you repeat your last answer?";
+    return result || "I apologize, but I'm having a technical difficulty. Could you repeat your last answer?";
   } catch (e) {
     console.error("Error generating text response:", e);
     return "I apologize, but I'm having a technical difficulty. Could you repeat your last answer?";
