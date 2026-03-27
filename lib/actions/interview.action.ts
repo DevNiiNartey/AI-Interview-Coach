@@ -16,9 +16,9 @@ const gemini = new GoogleGenerativeAI(process.env.GOOGLE_AI_KEY || "");
 // Final fallback: Google Gemini 2.0 Flash (free tier, 1500 req/day)
 const OPENROUTER_MODELS = [
   "meta-llama/llama-3.3-70b-instruct:free",
-  "mistralai/mistral-small-3.1:free",
-  "qwen/qwen3-coder:free",
   "google/gemma-3-27b-it:free",
+  "qwen/qwen3-235b-a22b:free",
+  "deepseek/deepseek-r1-0528:free",
 ];
 
 async function chatWithFallback(
@@ -33,25 +33,21 @@ async function chatWithFallback(
       });
       return completion.choices[0]?.message?.content?.trim() || "";
     } catch (e: unknown) {
-      const isRateLimit = e instanceof Error && "status" in e && (e as { status: number }).status === 429;
-      if (isRateLimit) {
-        console.warn(`Model ${model} rate-limited, trying next fallback...`);
-        continue;
-      }
-      throw e;
+      console.warn(`Model ${model} failed, trying next fallback...`, e instanceof Error ? e.message : e);
+      continue;
     }
   }
 
-  // Final fallback: Google Gemini
+  // Final fallback: Google Gemini (guaranteed availability)
   if (process.env.GOOGLE_AI_KEY) {
-    console.warn("All OpenRouter models rate-limited, falling back to Gemini...");
+    console.warn("All OpenRouter models failed, falling back to Gemini...");
     const model = gemini.getGenerativeModel({ model: "gemini-2.0-flash" });
     const prompt = messages.map((m) => m.content).join("\n\n");
     const result = await model.generateContent(prompt);
     return result.response.text().trim();
   }
 
-  throw new Error("All AI models are rate-limited. Please try again later.");
+  throw new Error("All AI models unavailable. Please try again later.");
 }
 
 export async function createInterview(params: CreateInterviewParams) {
