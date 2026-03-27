@@ -2,6 +2,8 @@
 
 import {auth, db} from "@/firebase/admin";
 import {cookies} from "next/headers";
+import {ReadonlyRequestCookies} from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import {sendVerificationEmail} from "@/lib/actions/email.action";
 
 
 const ONE_WEEK = 60 * 60 * 24 * 7;
@@ -18,7 +20,16 @@ export async function signUp(params: SignUpParams) {
         await db.collection("users").doc(uid).set({
             name,
             email,
+            emailVerified: false,
         })
+
+        // Send verification email (best-effort — don't block account creation)
+        try {
+            await sendVerificationEmail(uid, email, name);
+        } catch (emailErr) {
+            console.warn("Failed to send verification email:", emailErr);
+        }
+
         return {
             success: true,
             message: "User created successfully, please sign in"
@@ -66,18 +77,18 @@ export async function signIn(params: SignInParams) {
 export async function setSessionCookie(idToken: string) {
 
 
-    const cookieStore = await cookies();
+    const cookieStore: ReadonlyRequestCookies = await cookies();
 
     const sessionCookie = await auth.createSessionCookie(idToken, {
         expiresIn: ONE_WEEK * 1000,
     })
 
-    const cookieStore.set('session', sessionCookie, {
+    cookieStore.set('session', sessionCookie, {
         maxAge: ONE_WEEK,
         httpOnly: true,
         path: '/',
         sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
+        secure: process.env.NODE_ENV === 'production'
     });
 
 }
@@ -99,6 +110,17 @@ export async function getCurrentUser(): Promise<User | null> {
         return {...userRecord.data(), id: userRecord.id} as User;
     } catch (e: any) {
         return null;
+    }
+}
+
+export async function signOut() {
+    try {
+        const cookieStore = await cookies();
+        cookieStore.delete('session');
+        return { success: true };
+    } catch (e: any) {
+        console.error("Error signing out: ", e);
+        return { success: false, message: e.message || "Failed to sign out" };
     }
 }
 

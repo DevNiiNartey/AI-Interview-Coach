@@ -23,6 +23,18 @@ interface Interview {
   userId: string;
   type: string;
   finalized: boolean;
+  mode: "voice" | "text";
+  transcript?: { role: string; content: string }[];
+  feedbackId?: string;
+}
+
+interface CreateInterviewParams {
+  role: string;
+  level: string;
+  techstack: string[];
+  type: string;
+  mode: "voice" | "text";
+  userId: string;
 }
 
 interface CreateFeedbackParams {
@@ -36,6 +48,7 @@ interface User {
   name: string;
   email: string;
   id: string;
+  emailVerified?: boolean;
 }
 
 interface InterviewCardProps {
@@ -45,6 +58,7 @@ interface InterviewCardProps {
   type: string;
   techstack: string[];
   createdAt?: string;
+  feedbackId?: string;
 }
 
 interface AgentProps {
@@ -54,6 +68,7 @@ interface AgentProps {
   feedbackId?: string;
   type: "generate" | "interview";
   questions?: string[];
+  interview?: Interview;
 }
 
 interface RouteParams {
@@ -96,4 +111,13 @@ interface InterviewFormProps {
 
 interface TechIconProps {
   techStack: string[];
+}
+
+interface ScorecardProps {
+  feedback: Feedback;
+}
+
+interface TextMessage {
+  role: "user" | "assistant";
+  content: string;
 }
