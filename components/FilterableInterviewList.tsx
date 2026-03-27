@@ -72,13 +72,13 @@ const FilterableInterviewList = ({interviews}: { interviews: EnrichedInterview[]
 
     return (
         <div className="flex flex-col gap-6">
-            <div className="flex flex-wrap gap-4 items-center">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-stretch sm:items-center">
                 <div className="flex flex-col gap-1">
                     <label className="text-sm text-light-100">Type</label>
                     <select
                         value={typeFilter}
                         onChange={(e) => setTypeFilter(e.target.value)}
-                        className="bg-dark-200 text-primary-100 rounded-full px-4 py-2 text-sm border border-dark-200 cursor-pointer"
+                        className="bg-dark-200 text-primary-100 rounded-full px-4 py-2 text-sm border border-dark-200 cursor-pointer w-full sm:w-auto"
                     >
                         {typeOptions.map((opt) => (
                             <option key={opt} value={opt}>{opt}</option>
@@ -91,7 +91,7 @@ const FilterableInterviewList = ({interviews}: { interviews: EnrichedInterview[]
                     <select
                         value={roleFilter}
                         onChange={(e) => setRoleFilter(e.target.value)}
-                        className="bg-dark-200 text-primary-100 rounded-full px-4 py-2 text-sm border border-dark-200 cursor-pointer"
+                        className="bg-dark-200 text-primary-100 rounded-full px-4 py-2 text-sm border border-dark-200 cursor-pointer w-full sm:w-auto"
                     >
                         {uniqueRoles.map((opt) => (
                             <option key={opt} value={opt}>{opt}</option>
@@ -104,7 +104,7 @@ const FilterableInterviewList = ({interviews}: { interviews: EnrichedInterview[]
                     <select
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value as SortOption)}
-                        className="bg-dark-200 text-primary-100 rounded-full px-4 py-2 text-sm border border-dark-200 cursor-pointer"
+                        className="bg-dark-200 text-primary-100 rounded-full px-4 py-2 text-sm border border-dark-200 cursor-pointer w-full sm:w-auto"
                     >
                         <option value="newest">Newest First</option>
                         <option value="oldest">Oldest First</option>
@@ -113,7 +113,7 @@ const FilterableInterviewList = ({interviews}: { interviews: EnrichedInterview[]
                 </div>
 
                 {filtersActive && (
-                    <button onClick={clearFilters} className="btn-secondary mt-5 text-sm">
+                    <button onClick={clearFilters} className="btn-secondary sm:mt-5 text-sm w-full sm:w-auto">
                         Clear Filters
                     </button>
                 )}

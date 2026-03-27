@@ -186,7 +186,7 @@
   }
 
   .card-border {
-    @apply border-gradient p-0.5 rounded-2xl w-fit;
+    @apply border-gradient p-0.5 rounded-2xl;
   }
 
   .card {
@@ -262,11 +262,11 @@
   }
 
   .root-layout {
-    @apply flex mx-auto max-w-7xl flex-col gap-12 my-12 px-16 max-sm:px-4 max-sm:my-8;
+    @apply flex mx-auto max-w-7xl flex-col gap-12 my-12 px-4 md:px-16 max-sm:my-8;
   }
 
   .card-cta {
-    @apply flex flex-row blue-gradient-dark rounded-3xl px-16 py-6 items-center justify-between max-sm:px-4;
+    @apply flex flex-row blue-gradient-dark rounded-3xl px-4 md:px-16 py-6 items-center justify-between max-md:flex-col max-md:text-center max-md:gap-6;
   }
 
   .interviews-section {

@@ -52,7 +52,7 @@ export default function Scorecard({ feedback }: ScorecardProps) {
       <div className="card-border w-full">
         <div className="card p-6">
           <h3 className="text-center mb-4">Performance Breakdown</h3>
-          <ResponsiveContainer width="100%" height={350}>
+          <ResponsiveContainer width="100%" height={300} className="sm:!h-[350px]">
             <RadarChart data={chartData} cx="50%" cy="50%" outerRadius="70%">
               <PolarGrid stroke="#4B4D4F" />
               <PolarAngleAxis

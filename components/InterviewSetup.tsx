@@ -72,7 +72,7 @@ export default function InterviewSetup({ userId }: { userId: string }) {
       {/* Mode Toggle */}
       <div className="flex flex-col gap-3">
         <label className="text-light-100 font-semibold">Interview Mode</label>
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           <button
             type="button"
             onClick={() => setMode("voice")}
@@ -199,7 +199,7 @@ export default function InterviewSetup({ userId }: { userId: string }) {
       <div className="card-border">
         <div className="card p-6 flex flex-col gap-4">
           <h3>Interview Summary</h3>
-          <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
             <div>
               <p className="text-light-400">Mode</p>
               <p className="text-white font-semibold capitalize">{mode}</p>
