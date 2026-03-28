@@ -69,6 +69,24 @@ export async function getUserUsage(userId: string): Promise<UserUsage> {
   };
 }
 
+export async function checkUsageLimit(userId: string, mode: "voice" | "text"): Promise<{ allowed: boolean; message?: string }> {
+  const usage = await getUserUsage(userId);
+
+  if (usage.subscriptionTier === "pro") {
+    return { allowed: true };
+  }
+
+  if (mode === "voice" && usage.voiceInterviewsRemaining <= 0) {
+    return { allowed: false, message: "You've used your 1 free voice interview this month. Upgrade to Pro for unlimited access." };
+  }
+
+  if (mode === "text" && usage.textInterviewsRemaining <= 0) {
+    return { allowed: false, message: "You've used all 5 free text interviews this month. Upgrade to Pro for unlimited access." };
+  }
+
+  return { allowed: true };
+}
+
 export async function incrementUsage(userId: string, mode: "voice" | "text") {
   const field = mode === "voice" ? "voiceInterviewsUsedThisMonth" : "interviewsUsedThisMonth";
 
