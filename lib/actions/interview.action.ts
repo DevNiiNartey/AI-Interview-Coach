@@ -4,6 +4,7 @@ import { db } from "@/firebase/admin";
 import { feedbackSchema } from "@/constants";
 import OpenAI from "openai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { incrementUsage } from "@/lib/actions/usage.action";
 
 // Provider 1: Groq — primary, 14,400 req/day free, very fast
 const groq = new OpenAI({
@@ -99,6 +100,13 @@ Return ONLY a JSON array of strings, no markdown, no explanation. Example: ["Que
       finalized: false,
       createdAt: new Date().toISOString(),
     });
+
+    // Track usage (best-effort — don't fail the interview if increment fails)
+    try {
+      await incrementUsage(userId, mode);
+    } catch (usageErr) {
+      console.warn("Failed to increment usage:", usageErr);
+    }
 
     return {
       success: true,
