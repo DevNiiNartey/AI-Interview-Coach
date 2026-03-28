@@ -17,10 +17,18 @@ export async function signUp(params: SignUpParams) {
             return {success: false, message: "User already exists, Please sign in instead"}
         }
 
+        // Calculate first of next month for monthly reset date
+        const now = new Date();
+        const monthlyResetDate = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString();
+
         await db.collection("users").doc(uid).set({
             name,
             email,
             emailVerified: false,
+            subscriptionTier: "free",
+            interviewsUsedThisMonth: 0,
+            voiceInterviewsUsedThisMonth: 0,
+            monthlyResetDate,
         })
 
         // Send verification email (best-effort — don't block account creation)

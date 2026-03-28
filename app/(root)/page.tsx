@@ -8,10 +8,14 @@ import InterviewCard from "@/components/InterviewCard";
 import FilterableInterviewList from "@/components/FilterableInterviewList";
 import type { EnrichedInterview } from "@/components/FilterableInterviewList";
 import VerificationBanner from "@/components/VerificationBanner";
+import UsageCounter from "@/components/UsageCounter";
+import { getUserUsage } from "@/lib/actions/usage.action";
 
 export default async function Page() {
   const user = await getCurrentUser();
   if (!user) redirect("/sign-in");
+
+  const usage = await getUserUsage(user.id);
 
   const interviews = await getInterviewsByUserId(user.id);
 
@@ -52,6 +56,7 @@ export default async function Page() {
   return (
     <>
       <VerificationBanner userId={user.id} emailVerified={user.emailVerified} />
+      <UsageCounter usage={usage} />
 
       <section className="card-cta">
         <div className="flex flex-col gap-6 max-w-lg">

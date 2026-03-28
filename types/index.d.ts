@@ -49,6 +49,21 @@ interface User {
   email: string;
   id: string;
   emailVerified?: boolean;
+  subscriptionTier?: "free" | "pro";
+  subscriptionId?: string;
+  stripeCustomerId?: string;
+  interviewsUsedThisMonth?: number;
+  voiceInterviewsUsedThisMonth?: number;
+  monthlyResetDate?: string;
+}
+
+interface UserUsage {
+  subscriptionTier: "free" | "pro";
+  interviewsUsedThisMonth: number;
+  voiceInterviewsUsedThisMonth: number;
+  monthlyResetDate: string;
+  textInterviewsRemaining: number;
+  voiceInterviewsRemaining: number;
 }
 
 interface InterviewCardProps {

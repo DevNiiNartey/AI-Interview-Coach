@@ -12,6 +12,7 @@ import {
 import { createInterview } from "@/lib/actions/interview.action";
 import { toast } from "sonner";
 import Image from "next/image";
+import UpgradeModal from "@/components/UpgradeModal";
 
 export default function InterviewSetup({ userId }: { userId: string }) {
   const router = useRouter();
@@ -21,6 +22,7 @@ export default function InterviewSetup({ userId }: { userId: string }) {
   const [mode, setMode] = useState<"voice" | "text">("voice");
   const [selectedTech, setSelectedTech] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [upgradeModal, setUpgradeModal] = useState<string | null>(null);
 
   const toggleTech = (tech: string) => {
     setSelectedTech((prev) =>
@@ -52,6 +54,8 @@ export default function InterviewSetup({ userId }: { userId: string }) {
       if (result.success && result.interviewId) {
         toast.success("Interview created! Starting session...");
         router.push(`/interview/${result.interviewId}`);
+      } else if (result.limitExceeded) {
+        setUpgradeModal(result.message || "You've reached your free tier limit.");
       } else {
         toast.error(result.message || "Failed to create interview");
       }
@@ -63,7 +67,7 @@ export default function InterviewSetup({ userId }: { userId: string }) {
   };
 
   return (
-    <div className="flex flex-col gap-8 max-w-3xl w-full">
+    <><div className="flex flex-col gap-8 max-w-3xl w-full">
       <div className="flex flex-col gap-2">
         <h2>Start a New Interview</h2>
         <p>Configure your practice interview session</p>
@@ -233,5 +237,9 @@ export default function InterviewSetup({ userId }: { userId: string }) {
         </div>
       </div>
     </div>
+    {upgradeModal && (
+      <UpgradeModal message={upgradeModal} onClose={() => setUpgradeModal(null)} />
+    )}
+    </>
   );
 }
