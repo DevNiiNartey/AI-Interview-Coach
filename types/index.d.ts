@@ -50,6 +50,8 @@ interface User {
   id: string;
   emailVerified?: boolean;
   subscriptionTier?: "free" | "pro";
+  subscriptionId?: string;
+  stripeCustomerId?: string;
   interviewsUsedThisMonth?: number;
   voiceInterviewsUsedThisMonth?: number;
   monthlyResetDate?: string;
