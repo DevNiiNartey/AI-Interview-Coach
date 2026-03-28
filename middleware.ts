@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const protectedRoutes = ["/", "/interview"];
+const protectedRoutes = ["/", "/interview", "/pricing"];
 const authRoutes = ["/sign-in", "/sign-up"];
 
 export function middleware(request: NextRequest) {
@@ -8,7 +8,7 @@ export function middleware(request: NextRequest) {
   const sessionCookie = request.cookies.get("session")?.value;
 
   const isProtectedRoute = protectedRoutes.some(
-    (route) => pathname === route || pathname.startsWith("/interview/")
+    (route) => pathname === route || pathname.startsWith("/interview/") || pathname.startsWith("/pricing")
   );
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
 
