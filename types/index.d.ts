@@ -55,6 +55,13 @@ interface User {
   interviewsUsedThisMonth?: number;
   voiceInterviewsUsedThisMonth?: number;
   monthlyResetDate?: string;
+  // Gamification
+  xp?: number;
+  level?: number;
+  streak?: number;
+  streakLastDate?: string | null;
+  badges?: string[];
+  totalInterviews?: number;
 }
 
 interface UserUsage {

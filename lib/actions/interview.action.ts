@@ -5,6 +5,7 @@ import { feedbackSchema } from "@/constants";
 import OpenAI from "openai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { incrementUsage, checkUsageLimit } from "@/lib/actions/usage.action";
+import { updateStreakOnInterview, awardXp, checkAndAwardBadges } from "@/lib/actions/gamification.action";
 
 // Provider 1: Groq — primary, 14,400 req/day free, very fast
 const groq = new OpenAI({
@@ -262,6 +263,24 @@ Return ONLY valid JSON (no markdown, no explanation) in this exact format:
       feedbackId: feedbackRef.id,
       finalized: true,
     });
+
+    // Gamification: streak, XP, badges (best-effort)
+    try {
+      await updateStreakOnInterview(userId);
+      const { xpAwarded, newLevel, leveledUp } = await awardXp(userId, validated.totalScore);
+      const newBadges = await checkAndAwardBadges(userId, validated.totalScore, validated.categoryScores);
+
+      return {
+        success: true,
+        feedbackId: feedbackRef.id,
+        xpAwarded,
+        newLevel,
+        leveledUp,
+        newBadges,
+      };
+    } catch (gamErr) {
+      console.warn("Gamification update failed:", gamErr);
+    }
 
     return {
       success: true,

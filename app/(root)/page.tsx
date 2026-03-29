@@ -9,13 +9,17 @@ import FilterableInterviewList from "@/components/FilterableInterviewList";
 import type { EnrichedInterview } from "@/components/FilterableInterviewList";
 import VerificationBanner from "@/components/VerificationBanner";
 import UsageCounter from "@/components/UsageCounter";
+import GamificationStats from "@/components/GamificationStats";
 import { getUserUsage } from "@/lib/actions/usage.action";
+import { getGamificationData, getXpForNextLevel } from "@/lib/actions/gamification.action";
 
 export default async function Page() {
   const user = await getCurrentUser();
   if (!user) redirect("/sign-in");
 
   const usage = await getUserUsage(user.id);
+  const gamification = await getGamificationData(user.id);
+  const xpForNextLevel = await getXpForNextLevel(gamification.level);
 
   const interviews = await getInterviewsByUserId(user.id);
 
@@ -72,6 +76,17 @@ export default async function Page() {
           width={400}
           height={400}
           className="max-sm:hidden"
+        />
+      </section>
+
+      <section className="mt-8">
+        <GamificationStats
+          xp={gamification.xp}
+          level={gamification.level}
+          streak={gamification.streak}
+          badges={gamification.badges}
+          totalInterviews={gamification.totalInterviews}
+          xpForNextLevel={xpForNextLevel}
         />
       </section>
 
