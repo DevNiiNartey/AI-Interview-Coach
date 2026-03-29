@@ -29,6 +29,12 @@ export async function signUp(params: SignUpParams) {
             interviewsUsedThisMonth: 0,
             voiceInterviewsUsedThisMonth: 0,
             monthlyResetDate,
+            xp: 0,
+            level: 1,
+            streak: 0,
+            streakLastDate: null,
+            badges: [],
+            totalInterviews: 0,
         })
 
         // Send verification email (best-effort — don't block account creation)
